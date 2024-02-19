@@ -3,6 +3,6 @@
 
 #include "../module.h"
 
-module_t analyze_audio_track_module;
+extern module_t analyze_audio_track_module;
 
 #endif

@@ -3,6 +3,6 @@
 
 #include "../module.h"
 
-module_t analyze_color_space_module;
+extern module_t analyze_color_space_module;
 
 #endif
