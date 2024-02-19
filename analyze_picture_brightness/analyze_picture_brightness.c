@@ -1,5 +1,7 @@
 #include "analyze_picture_brightness.h"
 
+#include <stdio.h>
+
 int analyze_picture_brightness(int argc, char **argv);
 
 module_t analyze_picture_brightness_module = {

@@ -1,5 +1,7 @@
 #include "analyze_color_space.h"
 
+#include <stdio.h>
+
 int analyze_color_space(int argc, char **argv);
 
 module_t analyze_color_space_module = {

@@ -1,5 +1,7 @@
 #include "analyze_audio_track.h"
 
+#include <stdio.h>
+
 int analyze_audio_track(int argc, char **argv);
 
 module_t analyze_audio_track_module = {
