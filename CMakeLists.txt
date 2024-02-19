@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(VideoAnalysisTool C)
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_subdirectory(analyze_color_space)
 add_subdirectory(analyze_picture_brightness)
