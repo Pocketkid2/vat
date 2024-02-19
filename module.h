@@ -1,5 +1,5 @@
-#ifndef MODULE_H
-#define MODULE_H
+#ifndef VAT_MODULE_H
+#define VAT_MODULE_H
 
 // Function pointer type
 typedef int (*module_function_t)(int, char**);

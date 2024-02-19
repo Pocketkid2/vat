@@ -1,0 +1,6 @@
+#ifndef VAT_ANALYZE_COLOR_SPACE_H
+#define VAT_ANALYZE_COLOR_SPACE_H
+
+
+
+#endif

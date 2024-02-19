@@ -1,0 +1,6 @@
+#ifndef VAT_ANALYZE_AUDIO_TRACK_H
+#define VAT_ANALYZE_AUDIO_TRACK_H
+
+
+
+#endif
