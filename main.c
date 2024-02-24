@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     }
     for (int i = 0; i < sizeof(modules) / sizeof(module_t *); i++) {
         if (strcmp(modules[i]->short_name, argv[1]) == 0 || strcmp(modules[i]->long_name, argv[1]) == 0) {
-            return modules[i]->function(argc - 1, argv + 1);
+            return modules[i]->function(argc, argv);
         }
     }
 }
