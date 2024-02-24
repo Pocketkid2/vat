@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "analyze_audio_track/analyze_audio_track.h"
-#include "analyze_color_space/analyze_color_space.h"
-#include "analyze_picture_brightness/analyze_picture_brightness.h"
+#include "bitrate/bitrate.h"
 
 module_t *modules[] = {
-        &analyze_audio_track_module,
-        &analyze_color_space_module,
-        &analyze_picture_brightness_module
+        &bitrate_module
 };
 
 int main(int argc, char **argv) {

@@ -1,1 +1,0 @@
-add_library(analyze_picture_brightness analyze_picture_brightness.c)

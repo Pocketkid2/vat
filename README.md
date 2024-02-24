@@ -8,6 +8,4 @@ The purpose of this software is to analyze video data to find information such a
 ## Modules
 | Module name | Abbreviated name | Description |
 | --------- | ---------------- | ----------- |
-| `analyze_color_space` | `acs` | Scans the entire video file and looks at the color space usage compared to the container maximum |
-| `analyze_picture_brightness` | `apb` | Scans the entire video file and looks at the brightness usage compared to the container maximum |
-| `analyze_audio_track` | `aat` | Scans the entire audio track and prints a graph of the frequency response |
+| `bitrate` | `bt` | Analyzes the video bitrate and prints a PNG graph |

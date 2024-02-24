@@ -1,1 +1,0 @@
-add_library(analyze_color_space analyze_color_space.c)

@@ -1,0 +1,1 @@
+add_library(bitrate_module bitrate.c)

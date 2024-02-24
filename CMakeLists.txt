@@ -3,11 +3,9 @@ project(VideoAnalysisTool C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
 
-include_directories(include)
+include_directories(include modules)
 
-add_subdirectory(analyze_color_space)
-add_subdirectory(analyze_picture_brightness)
-add_subdirectory(analyze_audio_track)
+add_subdirectory(modules/bitrate)
 
 add_executable(vat main.c)
-target_link_libraries(vat analyze_color_space analyze_picture_brightness analyze_audio_track)
+target_link_libraries(vat bitrate_module)
