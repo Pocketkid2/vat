@@ -17,5 +17,5 @@ include_directories(include modules)
 add_subdirectory(modules/bitrate)
 
 # Define executable
-add_executable(vat main.c)
+add_executable(vat main.c timing.c)
 target_link_libraries(vat bitrate_module ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
