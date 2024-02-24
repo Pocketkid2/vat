@@ -3,6 +3,8 @@
 
 #include "bitrate/bitrate.h"
 
+#include "timing.h"
+
 module_t *modules[] = {
         &bitrate_module
 };
@@ -18,7 +20,12 @@ int main(int argc, char **argv) {
     }
     for (int i = 0; i < sizeof(modules) / sizeof(module_t *); i++) {
         if (strcmp(modules[i]->short_name, argv[1]) == 0 || strcmp(modules[i]->long_name, argv[1]) == 0) {
-            return modules[i]->function(argc, argv);
+            stopwatch_t sw;
+            stopwatch_start(&sw);
+            int status = modules[i]->function(argc, argv);
+            stopwatch_stop(&sw);
+            stopwatch_print(&sw);
+            return status;
         }
     }
 }
