@@ -1,9 +1,11 @@
 #include "bitrate.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
 
 int bitrate_function(int argc, char **argv);
 
@@ -27,10 +29,11 @@ int bitrate_function(int argc, char **argv)
 
     AVFormatContext *pFormatCtx = NULL;
     int videoStream;
-    double min_bitrate = INT_MAX;
-    double max_bitrate = INT_MIN;
-    double total_bitrate = 0;
+    int min_frame_bytes = INT_MAX;
+    int max_frame_bytes = INT_MIN;
+    long total_bytes = 0;
     int frame_count = 0;
+    assert(sizeof(long) == 8);
 
     if (avformat_open_input(&pFormatCtx, filename, NULL, NULL) != 0)
         return -1; // Couldn't open file
@@ -63,25 +66,74 @@ int bitrate_function(int argc, char **argv)
     if (videoStream == -1)
         return -1; // Didn't find a video stream
 
+    AVCodec *pCodec = avcodec_find_decoder(pCodecParameters->codec_id);
+    if (!pCodec) {
+        printf("Unsupported codec!\n");
+        return -1;
+    }
+
+    if (avcodec_open2(pCodecContext, pCodec, NULL) < 0) {
+        printf("Could not open codec\n");
+        return -1;
+    }
+
+    AVFrame *pFrame = av_frame_alloc();
+    if (!pFrame) {
+        printf("Could not allocate video frame\n");
+        return -1;
+    }
+
     AVPacket packet;
+
     while (av_read_frame(pFormatCtx, &packet) >= 0)
     {
         if (packet.stream_index == videoStream)
         {
-            double bitrate = (double)packet.size * 8 / av_q2d(pFormatCtx->streams[videoStream]->time_base) / 1000.0;
-            min_bitrate = fmin(min_bitrate, bitrate);
-            max_bitrate = fmax(max_bitrate, bitrate);
-            total_bitrate += bitrate;
-            frame_count++;
+            int response = avcodec_send_packet(pCodecContext, &packet);
+
+            while (response >= 0)
+            {
+                response = avcodec_receive_frame(pCodecContext, pFrame);
+
+                if (response == AVERROR(EAGAIN) || response == AVERROR_EOF)
+                    break;
+                else if (response < 0)
+                {
+                    printf("Error while receiving a frame from the decoder\n");
+                    return -1;
+                }
+
+                if (response >= 0)
+                {
+                    // Set the min and max bytes per frame if applicable
+                    if (packet.size > max_frame_bytes)
+                        max_frame_bytes = packet.size;
+                    if (packet.size < min_frame_bytes)
+                        min_frame_bytes = packet.size;
+
+                    // Add to the running totals
+                    total_bytes += packet.size;
+                    frame_count++;
+
+                    if (frame_count % 1000 == 0)
+                        printf("Processed %d frames\n", frame_count);
+                }
+            }
         }
         av_packet_unref(&packet);
     }
 
-    double avg_bitrate = total_bitrate / frame_count;
+    double frame_rate = av_q2d(pFormatCtx->streams[videoStream]->avg_frame_rate);
 
-    printf("Min bitrate: %f kbps\n", min_bitrate);
-    printf("Max bitrate: %f kbps\n", max_bitrate);
-    printf("Avg bitrate: %f kbps\n", avg_bitrate);
+    double avg_frame_bytes = ((double)total_bytes) / ((double)frame_count);
+
+    double min_bitrate_kbps = ((double)min_frame_bytes * 8.0 * frame_rate) / 1000.0;
+    double max_bitrate_kbps = ((double)max_frame_bytes * 8.0 * frame_rate) / 1000.0;
+    double avg_bitrate_kbps = ((double)avg_frame_bytes * 8.0 * frame_rate) / 1000.0;
+
+    printf("Min bitrate: %.2f kbps\n", min_bitrate_kbps);
+    printf("Max bitrate: %.2f kbps\n", max_bitrate_kbps);
+    printf("Avg bitrate: %.2f kbps\n", avg_bitrate_kbps);
 
     avformat_close_input(&pFormatCtx);
     avcodec_free_context(&pCodecContext);
