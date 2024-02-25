@@ -14,5 +14,5 @@ double stopwatch_get(stopwatch_t *sw) {
 }
 
 void stopwatch_print(stopwatch_t *sw) {
-    printf("Elapsed time: %f seconds\n", stopwatch_get(sw));
+    printf("Elapsed time: %.2f seconds\n", stopwatch_get(sw));
 }
