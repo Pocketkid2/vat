@@ -1,11 +1,14 @@
-#include "bitrate.h"
-
 #include <stdio.h>
 #include <assert.h>
 
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
+
+#include "bitrate.h"
+#include "graph.h"
+
+#define BUFFER_ALLOCATION_SIZE 4096
 
 int bitrate_function(int argc, char **argv);
 
@@ -27,6 +30,16 @@ int bitrate_function(int argc, char **argv)
     char *filename = argv[2];
     printf("Calculating bitrate for file %s\n", argv[2]);
 
+    // Allocate buffer for bitrate data
+    int *frame_size_data_buffer = (int *)malloc(BUFFER_ALLOCATION_SIZE * sizeof(int));
+    if (!frame_size_data_buffer)
+    {
+        printf("Could not allocate buffer for frame size data\n");
+        return -1;
+    }
+    int frame_size_data_buffer_max = BUFFER_ALLOCATION_SIZE; // Current limit
+    int frame_size_data_buffer_size = 0; // Current size
+
     AVFormatContext *pFormatCtx = NULL;
     int videoStream;
     int min_frame_bytes = INT_MAX;
@@ -45,40 +58,46 @@ int bitrate_function(int argc, char **argv)
     AVCodecParameters *pCodecParameters = NULL;
     AVCodecContext *pCodecContext = NULL;
 
-    for (int i = 0; i < pFormatCtx->nb_streams; i++) {
+    for (int i = 0; i < pFormatCtx->nb_streams; i++)
+    {
         pCodecParameters = pFormatCtx->streams[i]->codecpar;
         if (pCodecParameters->codec_type == AVMEDIA_TYPE_VIDEO)
         {
             videoStream = i;
             pCodecContext = avcodec_alloc_context3(NULL);
-            if (!pCodecContext) {
+            if (!pCodecContext)
+            {
                 printf("Could not allocate a codec context\n");
                 return -1;
             }
-            if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
+            if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0)
+            {
                 printf("Could not copy codec parameters to codec context\n");
                 return -1;
             }
             break;
         }
     }
-        
+
     if (videoStream == -1)
         return -1; // Didn't find a video stream
 
     AVCodec *pCodec = avcodec_find_decoder(pCodecParameters->codec_id);
-    if (!pCodec) {
+    if (!pCodec)
+    {
         printf("Unsupported codec!\n");
         return -1;
     }
 
-    if (avcodec_open2(pCodecContext, pCodec, NULL) < 0) {
+    if (avcodec_open2(pCodecContext, pCodec, NULL) < 0)
+    {
         printf("Could not open codec\n");
         return -1;
     }
 
     AVFrame *pFrame = av_frame_alloc();
-    if (!pFrame) {
+    if (!pFrame)
+    {
         printf("Could not allocate video frame\n");
         return -1;
     }
@@ -115,6 +134,19 @@ int bitrate_function(int argc, char **argv)
                     total_bytes += packet.size;
                     frame_count++;
 
+                    // Add to the buffer
+                    if (frame_size_data_buffer_size >= frame_size_data_buffer_max)
+                    {
+                        frame_size_data_buffer_max += BUFFER_ALLOCATION_SIZE;
+                        frame_size_data_buffer = (int *)realloc(frame_size_data_buffer, frame_size_data_buffer_max * sizeof(int));
+                        if (!frame_size_data_buffer)
+                        {
+                            printf("Could not reallocate buffer for frame size data\n");
+                            return -1;
+                        }
+                    }
+                    frame_size_data_buffer[frame_size_data_buffer_size++] = packet.size;
+
                     if (frame_count % 1000 == 0)
                         printf("Processed %d frames\n", frame_count);
                 }
@@ -134,6 +166,17 @@ int bitrate_function(int argc, char **argv)
     printf("Min bitrate: %.2f kbps\n", min_bitrate_kbps);
     printf("Max bitrate: %.2f kbps\n", max_bitrate_kbps);
     printf("Avg bitrate: %.2f kbps\n", avg_bitrate_kbps);
+
+    printf("Creating graph\n");
+
+    double *bitrate_data = (double *)malloc(frame_size_data_buffer_size * sizeof(double));
+
+    for (int i = 0; i < frame_size_data_buffer_size; i++)
+    {
+        bitrate_data[i] = ((double)frame_size_data_buffer[i] * 8.0 * frame_rate) / 1000.0;
+    }
+
+    create_graph(bitrate_data, frame_size_data_buffer_size, 1280, 720, "bitrate_data.png");
 
     avformat_close_input(&pFormatCtx);
     avcodec_free_context(&pCodecContext);
