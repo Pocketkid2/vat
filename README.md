@@ -15,6 +15,9 @@ cmake ..
 make
 ```
 
+### Tip for MacOS Homebrew users
+If `ld` can't find the cairo library, try running `export LIBRARY_PATH="$(brew --prefix cairo)/lib:$LIBRARY_PATH"` beforehand
+
 ## Usage
 `vat <module> <args>`
 
