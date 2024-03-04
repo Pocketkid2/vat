@@ -26,7 +26,7 @@ add_subdirectory(utils)
 
 # Define executable
 add_executable(vat main.c)
-target_link_libraries(vat module_bitrate utils_timing ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
+target_link_libraries(vat module_bitrate utils_timing utils_graph ${CAIRO_LIBRARIES} ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
 
 # Define tests
 add_executable(test_graph tests/test_graph.c)
