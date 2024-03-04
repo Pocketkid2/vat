@@ -13,6 +13,16 @@
 
 void create_graph(double *data, int data_count, int width, int height, const char *filename)
 {
+    // Scan the data to find the maximum value
+    double max_value = 0;
+    for (int i = 0; i < data_count; i++)
+    {
+        if (data[i] > max_value)
+        {
+            max_value = data[i];
+        }
+    }
+
     // Define left and right margins
     int margin[2];
     margin[0] = width / 10;  // Left margin
@@ -32,7 +42,7 @@ void create_graph(double *data, int data_count, int width, int height, const cha
     cairo_paint(cr);
 
     // Set line color to black
-    cairo_set_source_rgb(cr, BLACK);
+    cairo_set_source_rgb(cr, BLUE);
 
     // Draw graph
     for (int i = 0; i < width - margin[0] - margin[1]; i++)
@@ -45,8 +55,14 @@ void create_graph(double *data, int data_count, int width, int height, const cha
         }
         double average = sum / points_per_pixel;
 
-        // Draw the point on the graph
-        cairo_line_to(cr, i + margin[0], height - margin[1] - (average * (height - margin[0] - margin[1])));
+        // Scale the average based on the maximum value
+        double scaled_average = average / max_value;
+
+        // Move to the horizontal axis for this x point
+        cairo_move_to(cr, i + margin[0], height - margin[1]);
+
+        // Draw a line to the y-value for this x point
+        cairo_line_to(cr, i + margin[0], height - margin[1] - (scaled_average * (height - margin[0] - margin[1])));
     }
     cairo_stroke(cr);
 
@@ -95,7 +111,7 @@ void create_graph(double *data, int data_count, int width, int height, const cha
     cairo_stroke(cr);
 
     // Set font size and color
-    cairo_set_font_size(cr, 20);       // Set font size to 20
+    cairo_set_font_size(cr, 20);     // Set font size to 20
     cairo_set_source_rgb(cr, BLACK); // Set font color to red
 
     // Label axes
