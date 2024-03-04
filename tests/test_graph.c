@@ -7,7 +7,7 @@ int main() {
     // Generate synthetic data
     double data[DATA_COUNT];
     for (int i = 0; i < DATA_COUNT; i++) {
-        data[i] = sin(2 * M_PI * i / DATA_COUNT);
+        data[i] = fabs(sin(2 * M_PI * i / DATA_COUNT));
     }
 
     // Create graph
