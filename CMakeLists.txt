@@ -12,10 +12,22 @@ find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
 find_library(AVUTIL_LIBRARY avutil)
 include_directories(${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR})
 
+# Load Cairo library
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CAIRO REQUIRED cairo)
+include_directories(${CAIRO_INCLUDE_DIRS})
+
 # Add modules
 include_directories(include modules)
 add_subdirectory(modules/bitrate)
 
+# Add utils
+add_subdirectory(utils)
+
 # Define executable
-add_executable(vat main.c timing.c)
-target_link_libraries(vat bitrate_module ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
+add_executable(vat main.c)
+target_link_libraries(vat module_bitrate utils_timing ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
+
+# Define tests
+add_executable(test_graph tests/test_graph.c)
+target_link_libraries(test_graph utils_graph m ${CAIRO_LIBRARIES})
