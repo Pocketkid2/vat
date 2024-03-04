@@ -176,7 +176,7 @@ int bitrate_function(int argc, char **argv)
         bitrate_data[i] = ((double)frame_size_data_buffer[i] * 8.0 * frame_rate) / 1000.0;
     }
 
-    create_graph(bitrate_data, frame_size_data_buffer_size, 1280, 720, "bitrate_data.png");
+    create_graph_bitrate_v_time(bitrate_data, frame_size_data_buffer_size, frame_rate, 1280, 720, "bitrate_data.png");
 
     avformat_close_input(&pFormatCtx);
     avcodec_free_context(&pCodecContext);

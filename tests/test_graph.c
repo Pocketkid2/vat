@@ -11,7 +11,7 @@ int main() {
     }
 
     // Create graph
-    create_graph(data, DATA_COUNT, 800, 600, "graph.png");
+    create_graph_bitrate_v_time(data, DATA_COUNT, 24, 800, 600, "graph.png");
 
     return 0;
 }

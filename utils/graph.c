@@ -11,7 +11,7 @@
 #define CYAN 0, 1, 1
 #define MAGENTA 1, 0, 1
 
-void create_graph(double *data, int data_count, int width, int height, const char *filename)
+void create_graph_bitrate_v_time(double *data, int data_count, double framerate, int width, int height, const char *filename)
 {
     // Scan the data to find the maximum value
     double max_value = 0;
@@ -66,6 +66,9 @@ void create_graph(double *data, int data_count, int width, int height, const cha
     }
     cairo_stroke(cr);
 
+    // Change color back to black
+    cairo_set_source_rgb(cr, BLACK);
+
     // Draw axes
     cairo_move_to(cr, margin[0], height - margin[1]);
     cairo_line_to(cr, width - margin[1], height - margin[1]);
@@ -76,6 +79,7 @@ void create_graph(double *data, int data_count, int width, int height, const cha
     // Draw grid and markers
     int num_horizontal_lines = 10;
     int num_vertical_lines = 10;
+    double max_label_width = 0;
     for (int i = 1; i < num_horizontal_lines; i++)
     {
         int y = height - margin[1] - i * (height - 2 * margin[1]) / num_horizontal_lines;
@@ -84,11 +88,23 @@ void create_graph(double *data, int data_count, int width, int height, const cha
 
         // Label the grid line
         char label[64];
-        sprintf(label, "%d", i * data_count / num_horizontal_lines);
+        double value = i * max_value / num_horizontal_lines;
+        if (value > 1000.0)
+        {
+            sprintf(label, "%.2f Mbps", value / 1000.0);
+        }
+        else
+        {
+            sprintf(label, "%.2f kbps", value);
+        }
 
         // Calculate text width
         cairo_text_extents_t extents;
         cairo_text_extents(cr, label, &extents);
+        if (extents.width > max_label_width)
+        {
+            max_label_width = extents.width;
+        }
 
         // Move to the position adjusted by the text width
         cairo_move_to(cr, margin[0] - (width / 100) - extents.width, y); // Move labels to the left of the vertical axis
@@ -101,9 +117,19 @@ void create_graph(double *data, int data_count, int width, int height, const cha
         cairo_move_to(cr, x, height - margin[1]);
         cairo_line_to(cr, x, margin[0]);
 
+        // Calculate the time for this data point
+        double time = i * data_count / (num_vertical_lines * framerate);
+
+        // Convert the time to hours, minutes, and seconds
+        int hours = (int)time / 3600;
+        time -= hours * 3600;
+        int minutes = (int)time / 60;
+        time -= minutes * 60;
+        int seconds = (int)time;
+
         // Label the grid line
         char label[64];
-        sprintf(label, "%d", i * data_count / num_vertical_lines);
+        sprintf(label, "%02d:%02d:%02d", hours, minutes, seconds);
         cairo_move_to(cr, x, height - margin[1] + (height / 40)); // Move labels below the horizontal axis
         cairo_show_text(cr, label);
     }
@@ -115,9 +141,9 @@ void create_graph(double *data, int data_count, int width, int height, const cha
     cairo_set_source_rgb(cr, BLACK); // Set font color to red
 
     // Label axes
-    cairo_move_to(cr, width / 2, height - margin[1] + (width / 20)); // Move x-axis label down
+    cairo_move_to(cr, width / 2, height - margin[1] + (width / 30)); // Move x-axis label down
     cairo_show_text(cr, "Time");
-    cairo_move_to(cr, margin[0] - (width / 20), height / 2); // Move y-axis label to the left
+    cairo_move_to(cr, margin[0] - (width / 100) - max_label_width, height / 2); // Move y-axis label to the left
     cairo_save(cr);
     cairo_rotate(cr, -M_PI / 2);
     cairo_show_text(cr, "Bitrate");
