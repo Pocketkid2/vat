@@ -10,6 +10,9 @@
 
 #define BUFFER_ALLOCATION_SIZE 4096
 
+#define DEFAULT_GRAPH_WIDTH 1920
+#define DEFAULT_GRAPH_HEIGHT 1080
+
 int bitrate_function(int argc, char **argv);
 
 module_t bitrate_module = {
@@ -176,7 +179,33 @@ int bitrate_function(int argc, char **argv)
         bitrate_data[i] = ((double)frame_size_data_buffer[i] * 8.0 * frame_rate) / 1000.0;
     }
 
-    create_graph_bitrate_v_time(bitrate_data, frame_size_data_buffer_size, frame_rate, 1280, 720, "bitrate_data.png");
+    // Check for size parameter
+    int width = DEFAULT_GRAPH_WIDTH;
+    int height = DEFAULT_GRAPH_HEIGHT;
+    if (argc >= 4) {
+        if (strncmp(argv[3], "--size", 6) == 0) {
+            char *equals = strtok(argv[3], "=");
+            char *x = strtok(argv[3], "x");
+
+            char width_str[10];
+            strncpy(width_str, equals + 1, x - equals + 1);
+            width = atoi(width_str);
+            if (width <= 0) {
+                printf("Invalid width \'%s\'\n", width_str);
+                return -1;
+            }
+
+            char height_str[10];
+            strncpy(height_str, x + 1, strlen(x) - 1);
+            height = atoi(height_str);
+            if (height <= 0) {
+                printf("Invalid height \'%s\'\n", height_str);
+                return -1;
+            }
+        }
+    }
+
+    create_graph_bitrate_v_time(bitrate_data, frame_size_data_buffer_size, frame_rate, width, height, "bitrate_data.png");
 
     avformat_close_input(&pFormatCtx);
     avcodec_free_context(&pCodecContext);
