@@ -2,11 +2,15 @@
 #include <string.h>
 
 #include "bitrate/bitrate.h"
+#include "brightness/brightness.h"
+#include "colorspace/colorspace.h"
 
 #include "timing.h"
 
 module_t *modules[] = {
-        &bitrate_module
+        &bitrate_module,
+        &brightness_module,
+        &colorspace_module
 };
 
 int main(int argc, char **argv) {
@@ -14,7 +18,7 @@ int main(int argc, char **argv) {
         printf("Usage: %s <module> <args>\n", argv[0]);
         printf("Available modules:\n");
         for (int i = 0; i < sizeof(modules) / sizeof(module_t *); i++) {
-            printf("\t[%s] %s\n", modules[i]->short_name, modules[i]->long_name);
+            printf("\t[%s] %s\t- %s\n", modules[i]->short_name, modules[i]->long_name, modules[i]->description);
         }
         return 1;
     }

@@ -18,6 +18,7 @@ int bitrate_function(int argc, char **argv);
 module_t bitrate_module = {
     .long_name = "bitrate",
     .short_name = "bt",
+    .description = "Generate a graph of the bitrate of a video file over time.",
     .function = bitrate_function};
 
 int bitrate_function(int argc, char **argv)

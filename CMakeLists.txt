@@ -20,13 +20,29 @@ include_directories(${CAIRO_INCLUDE_DIRS})
 # Add modules
 include_directories(include modules)
 add_subdirectory(modules/bitrate)
+add_subdirectory(modules/brightness)
+add_subdirectory(modules/colorspace)
 
 # Add utils
 add_subdirectory(utils)
 
 # Define executable
 add_executable(vat main.c)
-target_link_libraries(vat module_bitrate utils_timing utils_graph ${CAIRO_LIBRARIES} ${AVCODEC_LIBRARY} ${AVFORMAT_LIBRARY} ${AVUTIL_LIBRARY} m)
+target_link_libraries(vat 
+
+    module_bitrate 
+    module_brightness
+    module_colorspace
+    
+    utils_timing 
+    utils_graph 
+    
+    ${CAIRO_LIBRARIES} 
+    ${AVCODEC_LIBRARY} 
+    ${AVFORMAT_LIBRARY} 
+    ${AVUTIL_LIBRARY} 
+    
+    m)
 
 # Define tests
 add_executable(test_graph tests/test_graph.c)
