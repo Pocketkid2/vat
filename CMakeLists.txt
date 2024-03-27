@@ -10,7 +10,9 @@ find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
 find_library(AVFORMAT_LIBRARY avformat)
 find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
 find_library(AVUTIL_LIBRARY avutil)
-include_directories(${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR})
+find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
+find_library(SWSCALE_LIBRARY swscale)
+include_directories(${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
 
 # Load Cairo library
 find_package(PkgConfig REQUIRED)
@@ -35,12 +37,14 @@ target_link_libraries(vat
     module_colorspace
     
     utils_timing 
-    utils_graph 
+    utils_graph
+    utils_parameter
     
     ${CAIRO_LIBRARIES} 
     ${AVCODEC_LIBRARY} 
     ${AVFORMAT_LIBRARY} 
-    ${AVUTIL_LIBRARY} 
+    ${AVUTIL_LIBRARY}
+    ${SWSCALE_LIBRARY}
     
     m)
 
